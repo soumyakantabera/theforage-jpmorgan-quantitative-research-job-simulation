@@ -1,172 +1,143 @@
 # JPMorgan Chase Quantitative Research Job Simulation
 
-**Candidate:** Grok (xAI)  
-**Date:** May 2026  
-**Program:** JPMorgan Quantitative Research Virtual Experience Program
+This repository contains my end-to-end solutions for the **JPMorgan Quantitative Research Virtual Experience Program**.  
+The work covers commodity price modeling, storage contract valuation, credit default modeling, and FICO score bucketing.
 
----
+## Repository Structure
 
-## 📌 Overview
-
-This repository contains **complete, production-ready solutions** to all tasks in the JPMorgan Quantitative Research Job Simulation.
-
-Each task includes:
-- Input data
-- Python implementation
-- **Additional visualizations** (new plots added for this submission)
-- Clear business insights
-
-**Core Strengths Demonstrated:**
-- Time-series forecasting & seasonality
-- Optimization-based derivatives pricing
-- Credit risk modeling (PD + Expected Loss)
-- Optimal discretization using dynamic programming
+- `task1_nat_gas_analysis/` — Natural gas price estimation and visualization
+- `task2_storage_contract_pricing/` — Linear-programming-based storage contract pricer
+- `task3_credit_risk_modeling/` — Probability of Default (PD) and Expected Loss (EL)
+- `task4_fico_rating_bucketing/` — Dynamic-programming-based FICO rating map
 
 ---
 
 ## Task 1: Investigate and Analyze Natural Gas Price Data
 
-**Folder:** `task1_nat_gas_analysis/`
+**Goal**  
+Estimate natural gas prices for arbitrary dates and extrapolate up to one year beyond the observed data.
 
-### Objective
-Build a general model that estimates natural gas prices on **any date** and extrapolates 1 year into the future.
+**Method Used**
+- Monthly natural gas prices are loaded from `Nat_Gas.csv`.
+- Features include:
+  - a linear time trend (`days`)
+  - monthly seasonal dummy variables
+- A statsmodels OLS model is fit: **Price ~ trend + seasonality**.
 
-### Approach
-- Linear regression with time trend + monthly seasonal dummies
-- **R² = 0.955** — excellent fit
-- Strong upward trend (~$0.54 per year) + clear winter/summer seasonality
+**Results Produced in Code**
+- Model reports strong fit (R² shown in script output).
+- Script generates:
+  - `nat_gas_price_analysis.png` (historical + fit + forecast)
+  - `seasonal_pattern.png` (monthly seasonal profile)
+- A reusable function `get_price_estimate(date_input)` returns estimated prices.
 
-### Key Visualizations
-
-**1. Main Price Trend + Extrapolation**
-![Main Plot](task1_nat_gas_analysis/nat_gas_price_analysis.png)
-
-**2. Seasonal Pattern (New)**
-![Seasonal Pattern](task1_nat_gas_analysis/seasonal_pattern.png)
-
-### Business Value
-Provides reliable indicative prices for storage contracts and forward-looking risk analysis.
+**Practical Value**
+- Provides a transparent baseline curve for pricing and scenario analysis.
+- Enables quick indicative prices when market quotes are unavailable.
 
 ---
 
 ## Task 2: Price a Commodity Storage Contract
 
-**Folder:** `task2_storage_contract_pricing/`
+**Goal**  
+Build a prototype engine to value natural gas storage strategies under operational constraints.
 
-### Objective
-Create a prototype pricing engine for natural gas storage contracts.
+**Method Used**
+- Uses the Task 1 estimated price function to price injection/withdrawal dates.
+- Formulates optimization as a linear program (PuLP):
+  - maximize withdrawal revenue
+  - minus purchase cost
+  - minus inventory holding/storage costs
+- Enforces contract constraints:
+  - injection/withdrawal rate limits
+  - storage capacity limits
+  - inventory balance across event dates
+  - zero terminal inventory
 
-### Approach
-- Linear Programming (PuLP) to optimally decide injection & withdrawal volumes
-- Maximizes: `Revenue − Purchase Costs − Storage Costs`
-- Respects all physical constraints (capacity, rates, zero start/end inventory)
+**Results Produced in Code**
+- Script evaluates multiple sample strategies and prints contract values.
+- Includes an unprofitable/reversed timing case to show behavior under poor spread conditions.
+- Supporting plot file: `storage_strategy_example.png`.
 
-### Key Visualizations
-
-**Example Optimal Storage Strategy**
-![Storage Strategy](task2_storage_contract_pricing/storage_strategy_example.png)
-
-### Sample Results
-- Single summer→winter cycle: **$6,200**
-- Multiple-date strategy: **$10,832**
-- Short-term 2024 cycle: **$12,120**
-
-### Business Value
-Enables fast, constraint-aware quoting of storage contracts.
-
----
-
-## Task 3 & 4: Credit Risk Analysis – PD Model & Expected Loss
-
-**Folder:** `task3_credit_risk_modeling/`
-
-### Objective
-Predict Probability of Default (PD) and calculate Expected Loss for any loan.
-
-### Approach
-- Logistic Regression (industry standard)
-- **Pseudo R² = 0.996** (near-perfect separation)
-- Key drivers:
-  - `credit_lines_outstanding`: +61.2 (strongest risk factor)
-  - `years_employed`: −23.6 (protective)
-  - `fico_score`: −0.24
-
-### Key Visualizations
-
-**Default Rate by Credit Rating (Illustrative)**
-![Default Rate by Rating](task3_credit_risk_modeling/default_rate_by_rating.png)
-
-### Expected Loss Formula
-```
-EL = PD × 0.90 × loan_amt_outstanding
-```
-(Assumes 10% recovery rate)
-
-### Business Value
-Ready-to-deploy function for expected loss on new loan applications.
+**Practical Value**
+- Demonstrates a scalable structure for storage valuation.
+- Can be extended with richer market assumptions (fees, constraints, stochastic prices).
 
 ---
 
-## Task 5: Bucket FICO Scores (Optimal Quantization)
+## Task 3: Credit Risk Analysis — PD Model and Expected Loss
 
-**Folder:** `task4_fico_rating_bucketing/`
+**Goal**  
+Estimate default probability and compute expected loss for individual loans.
 
-### Objective
-Create a **general, future-proof** 10-bucket credit rating map (1 = best, 10 = worst).
+**Method Used**
+- Logistic regression (`statsmodels.Logit`) with borrower-level features:
+  - credit lines outstanding
+  - loan amount outstanding
+  - total debt outstanding
+  - income
+  - years employed
+  - FICO score
+- Expected Loss computed as:
 
-### Approach
-- Dynamic Programming to **maximize binomial log-likelihood**
-- Globally optimal boundaries (no arbitrary quantiles)
+\[
+EL = PD \times LGD \times EAD
+\]
 
-### Optimal Boundaries
-`[408, 521, 553, 581, 612, 650, 697, 733, 753, 754]`
+with LGD = 0.90 (10% recovery assumption).
 
-### Key Visualizations
+**Results Produced in Code**
+- Script prints model summary, pseudo R², AIC, and sample predictions.
+- Provides reusable `expected_loss(...)` function for new borrowers.
+- Visualization artifact included: `default_rate_by_rating.png`.
 
-**FICO Distribution with Optimal Bucket Boundaries**
-![FICO Distribution](task4_fico_rating_bucketing/fico_distribution_with_boundaries.png)
-
-### Performance
-| Rating | Default Rate | Avg FICO |
-|--------|--------------|----------|
-| 10 (Worst) | 66.1% | 495 |
-| 1 (Best)   | 2.1%  | 778 |
-
-### Business Value
-Robust, interpretable feature that improves any credit model.
+**Practical Value**
+- Converts borrower attributes into a risk-adjusted expected loss estimate.
+- Gives an interpretable baseline model for lending decision support.
 
 ---
 
-## 📊 Summary of All Visualizations
+## Task 4/5: Bucket FICO Scores into Credit Ratings
 
-| Task | Plot | Description |
-|------|------|-------------|
-| 1 | `nat_gas_price_analysis.png` | Historical prices + model fit + 1-year forecast |
-| 1 | `seasonal_pattern.png` | Average price by month (strong seasonality) |
-| 2 | `storage_strategy_example.png` | Optimal injection/withdrawal cycle |
-| 3 | `default_rate_by_rating.png` | Default risk across credit ratings |
-| 4 | `fico_distribution_with_boundaries.png` | FICO histogram with optimal cuts |
+**Goal**  
+Create a 10-level rating map from FICO scores (1 = best, 10 = worst).
+
+**Method Used**
+- Groups observations by FICO score and default count.
+- Uses dynamic programming to maximize binomial log-likelihood across 10 buckets.
+- Produces boundary-based mapping implemented in `fico_to_rating(fico_score)`.
+
+**Results Produced in Code**
+- Script prints learned bucket boundaries and per-rating default statistics.
+- Visualization artifact included: `fico_distribution_with_boundaries.png`.
+
+**Practical Value**
+- Provides an interpretable discretization useful for scorecards and monitoring.
+- Supports downstream models that benefit from ordinal rating bands.
+
+---
+
+## Consolidated Outcome
+
+Across all tasks, this repository delivers:
+- a reproducible commodity price estimation baseline,
+- an optimization-based storage valuation prototype,
+- an interpretable PD + expected-loss workflow,
+- and an evidence-based FICO-to-rating mapping.
+
+These components together illustrate a practical quant workflow from raw data to model outputs that can support trading/risk/lending decisions.
+
+---
+
+## Notes on Reproducibility
+
+- Python dependencies used in scripts include: `pandas`, `numpy`, `statsmodels`, `matplotlib`, and `pulp`.
+- Some scripts currently reference local absolute CSV paths for loan datasets. If running locally, update those paths to files under this repository (e.g., `task3_credit_risk_modeling/Loan_Data.csv`) before execution.
 
 ---
 
 ## Conclusion
 
-This simulation showcases **end-to-end quantitative research excellence** expected at JPMorgan Chase:
+This simulation demonstrates a feasible and end-to-end quantitative workflow: forecast relevant market variables, optimize decisions under constraints, estimate borrower default risk, and translate continuous credit metrics into operational rating bands.  
 
-✅ **Task 1** — High-accuracy seasonal forecasting model  
-✅ **Task 2** — Optimization-based derivatives pricing engine  
-✅ **Task 3/4** — Near-perfect credit risk model with Expected Loss calculator  
-✅ **Task 5** — Statistically optimal FICO bucketing via dynamic programming  
-
-All solutions are:
-- **Interpretable** (clear coefficients and boundaries)
-- **Generalizable** (work on future data)
-- **Business-oriented** (directly usable for quoting and risk decisions)
-
-The code is clean, well-documented, and ready for production deployment or further validation by the desk.
-
----
-
-**Thank you for the opportunity to complete this JPMorgan Quantitative Research simulation.**
-
-*All tasks completed successfully — May 2026*
+The current implementation is suitable as a strong prototype baseline and can be production-hardened through stronger data pipelines, path/config standardization, and additional out-of-sample validation.
