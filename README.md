@@ -1,7 +1,7 @@
 # JPMorgan Chase Quantitative Research Job Simulation
 
 <p>
-  <img src="https://img.shields.io/badge/Program-EY%20Forensic%20%26%20Integrity%20Services-yellow?style=for-the-badge">
+  <img src="https://img.shields.io/badge/Program-JPMorgan%20Chase%20Quantitative%20Research-yellow?style=for-the-badge">
   <img src="https://img.shields.io/badge/Platform-The%20Forage-blue?style=for-the-badge">
   <img src="https://img.shields.io/badge/Status-Completed-brightgreen?style=for-the-badge">
 </p>
