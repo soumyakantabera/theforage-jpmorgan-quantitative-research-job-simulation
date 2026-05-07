@@ -1,5 +1,22 @@
 # JPMorgan Chase Quantitative Research Job Simulation
 
+<p>
+  <img src="https://img.shields.io/badge/Program-EY%20Forensic%20%26%20Integrity%20Services-yellow?style=for-the-badge">
+  <img src="https://img.shields.io/badge/Platform-The%20Forage-blue?style=for-the-badge">
+  <img src="https://img.shields.io/badge/Status-Completed-brightgreen?style=for-the-badge">
+</p>
+
+## 📋 Table of Contents
+
+- [Repository Structure](#repository-structure)
+- [Task 1: Investigate and Analyze Natural Gas Price Data](#task-1-investigate-and-analyze-natural-gas-price-data)
+- [Task 2: Price a Commodity Storage Contract](#task-2-price-a-commodity-storage-contract)
+- [Task 3: Credit Risk Analysis — PD Model and Expected Loss](#task-3-credit-risk-analysis--pd-model-and-expected-loss)
+- [Task 4/5: Bucket FICO Scores into Credit Ratings](#task-45-bucket-fico-scores-into-credit-ratings)
+- [Consolidated Outcome](#consolidated-outcome)
+- [Notes on Reproducibility](#notes-on-reproducibility)
+- [Conclusion](#conclusion)
+
 This repository contains my end-to-end solutions for the **JPMorgan Quantitative Research Virtual Experience Program**.  
 The work covers commodity price modeling, storage contract valuation, credit default modeling, and FICO score bucketing.
 
